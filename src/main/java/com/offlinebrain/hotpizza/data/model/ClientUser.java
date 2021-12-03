@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.UUID;
 
 @Getter
@@ -17,7 +18,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity(name = "client_user")
+@Entity
+@Table(name = "client_user")
 public class ClientUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

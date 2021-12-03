@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.UUID;
 
 @Getter
@@ -19,7 +20,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity(name = "product_category")
+@Entity
+@Table(name = "product_category")
 public class ProductCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

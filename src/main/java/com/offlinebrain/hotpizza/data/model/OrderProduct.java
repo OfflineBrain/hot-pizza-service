@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 @Getter
@@ -18,7 +19,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity(name = "order_product")
+@Entity
+@Table(name = "order_product")
 @IdClass(OrderProduct.Key.class)
 public class OrderProduct {
     @Id
