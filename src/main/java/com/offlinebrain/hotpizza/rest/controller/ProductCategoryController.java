@@ -8,10 +8,16 @@ import com.offlinebrain.hotpizza.rest.model.category.CreateCategoryDTO;
 import com.offlinebrain.hotpizza.service.ProductCategoryService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +49,7 @@ public class ProductCategoryController {
         this.meterRegistry = meterRegistry;
     }
 
+    @Cacheable(value = "productCategories")
     @GetMapping(produces = "application/json")
     @ResponseBody
     public ResponseEntity<CollectionModel<EntityModel<CategoryDTO>>> getAll() {
@@ -54,6 +61,7 @@ public class ProductCategoryController {
         return ResponseEntity.ok(models);
     }
 
+    @Cacheable(value = "productCategory", key = "#name.toLowerCase()")
     @GetMapping(value = "/{name}", produces = "application/json")
     @ResponseBody
     public ResponseEntity<EntityModel<CategoryDTO>> getByName(@PathVariable("name") @NotEmpty String name) {
@@ -68,6 +76,7 @@ public class ProductCategoryController {
         return ResponseEntity.ok(model);
     }
 
+    @Cacheable(value = "productCategories", key = "#name.toLowerCase()")
     @GetMapping(value = "/{name}/subcategories", produces = "application/json")
     @ResponseBody
     public ResponseEntity<CollectionModel<EntityModel<CategoryDTO>>> getSubcategories(
@@ -80,6 +89,8 @@ public class ProductCategoryController {
         return ResponseEntity.ok(models);
     }
 
+    @Caching(evict = {@CacheEvict(value = "productCategories")},
+            put = {@CachePut(value = "productCategory", key = "#category.name.toLowerCase()")})
     @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseBody
     public ResponseEntity<EntityModel<CategoryDTO>> create(@RequestBody @NotNull CreateCategoryDTO category) {
@@ -88,6 +99,21 @@ public class ProductCategoryController {
 
         CategoryDTO createdCategory = categoryMapper.productCategoryToCategoryDto(createdEntity);
         EntityModel<CategoryDTO> model = modelAssembler.assemble(createdCategory);
-        return ResponseEntity.status(HttpStatus.CREATED).body(model);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(model.getLink(IanaLinkRelations.SELF).get().toUri())
+                .body(model);
+    }
+
+    @Caching(evict = {@CacheEvict(value = "productCategories"),
+            @CacheEvict(value = "productCategory", key = "#name.toLowerCase()")})
+    @DeleteMapping(value = "/{name}")
+    @ResponseBody
+    public ResponseEntity<Object> delete(@PathVariable("name") @NotEmpty String name) {
+        boolean deleted = categoryService.deleteCategoryByName(name);
+
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

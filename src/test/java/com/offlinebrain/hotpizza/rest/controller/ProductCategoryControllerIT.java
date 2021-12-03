@@ -58,7 +58,7 @@ class ProductCategoryControllerIT extends AbstractIT {
 
     @Nested
     @DisplayName("ProductCategory creation API")
-    class ProductCreation {
+    class ProductCategoryCreation {
         String testCategoryName = "ProductCategoryControllerIT.categoryName";
         String testParentCategoryName = "ProductCategoryControllerIT.parentCategoryName";
         String testSubcategoryName = "ProductCategoryControllerIT.subcategoryName";
@@ -116,10 +116,11 @@ class ProductCategoryControllerIT extends AbstractIT {
 
     @Nested
     @DisplayName("ProductCategory access API")
-    class ProductRetrieval {
+    class ProductCategoryRetrieval {
 
         ArrayList<String> testCategoryNames = Lists.newArrayList("ProductCategoryControllerIT.categoryName1",
-                "ProductCategoryControllerIT.categoryName2", "ProductCategoryControllerIT.categoryName3");
+                "ProductCategoryControllerIT.categoryName2",
+                "ProductCategoryControllerIT.categoryName3");
         String testParentCategoryName = "ProductCategoryControllerIT.parentCategoryName";
         ArrayList<String> testSubcategoryNames = Lists.newArrayList("ProductCategoryControllerIT.subcategoryName1",
                 "ProductCategoryControllerIT.subcategoryName2");
@@ -215,6 +216,34 @@ class ProductCategoryControllerIT extends AbstractIT {
             assertNotNull(category);
             assertEquals(testParentCategoryName, category.getName());
             assertNotNull(category.getUuid());
+        }
+    }
+
+    @Nested
+    @DisplayName("ProductCategory delete API")
+    class ProductCategoryDeletion {
+        String testCategoryName = "ProductCategoryControllerIT.categoryToDelete";
+
+        @BeforeEach
+        void setUp() {
+            repository.saveAndFlush(ProductCategory.builder().name(testCategoryName).build());
+        }
+
+        @AfterEach
+        void tearDown() {
+            repository.deleteAll();
+        }
+
+        @Test
+        @DisplayName("Delete category by name")
+        void testDeleteCategoryByName() {
+            String path = url + "/" + testCategoryName;
+            ResponseEntity<Object> response = restTemplate.exchange(path, HttpMethod.DELETE, HttpEntity.EMPTY,
+                    new ParameterizedTypeReference<>() {
+                    });
+
+            assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+            assertTrue(repository.findByName(testCategoryName).isEmpty());
         }
     }
 }

@@ -34,4 +34,8 @@ public class ProductCategoryService {
     public ProductCategory findCategoryByName(String name) {
         return categoryRepository.findByName(name).orElseThrow(RuntimeException::new);
     }
+
+    public boolean deleteCategoryByName(String name) {
+        return categoryRepository.deleteByName(name) == 1;
+    }
 }
