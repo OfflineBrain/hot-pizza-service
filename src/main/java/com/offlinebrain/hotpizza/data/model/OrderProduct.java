@@ -2,6 +2,7 @@ package com.offlinebrain.hotpizza.data.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,6 +36,7 @@ public class OrderProduct {
 
     @AllArgsConstructor
     @NoArgsConstructor
+    @EqualsAndHashCode
     public static class Key implements Serializable {
         private ClientOrder clientOrder;
         private Product product;
