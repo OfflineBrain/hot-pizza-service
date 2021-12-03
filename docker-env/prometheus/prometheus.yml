@@ -7,7 +7,12 @@ global:
     monitor: 'codelab-monitor'
 
 scrape_configs:
-  - job_name: 'pushgateway'
+#  - job_name: 'pushgateway'
+#    scrape_interval: 5s
+#    static_configs:
+#      - targets: ['pushgateway:9091']
+  - job_name: 'hot-pizza-service'
+    metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['pushgateway:9091']
+      - targets: ['host.docker.internal:8080']
