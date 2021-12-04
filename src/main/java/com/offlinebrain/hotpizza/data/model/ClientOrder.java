@@ -36,6 +36,9 @@ public class ClientOrder {
     private OrderState state;
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long number;
+    @ManyToOne
+    @JoinColumn(name = "address")
+    private Address address;
     private LocalDateTime creationDate;
     private LocalDateTime lastUpdatedDate;
     private String clientComment;
