@@ -8,14 +8,13 @@ import com.offlinebrain.hotpizza.rest.model.category.CreateCategoryDTO;
 import com.offlinebrain.hotpizza.service.ProductCategoryService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,23 +30,18 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 @RestController
 @RequestMapping("/categories")
+@RequiredArgsConstructor
 public class ProductCategoryController {
     private final ProductCategoryService categoryService;
     private final CategoryMapper categoryMapper;
     private final CategoryDTOModelAssembler modelAssembler;
     private final MeterRegistry meterRegistry;
-
-    public ProductCategoryController(ProductCategoryService categoryService, CategoryMapper categoryMapper,
-                                     CategoryDTOModelAssembler modelAssembler,
-                                     MeterRegistry meterRegistry) {
-        this.categoryService = categoryService;
-        this.categoryMapper = categoryMapper;
-        this.modelAssembler = modelAssembler;
-        this.meterRegistry = meterRegistry;
-    }
 
     @Cacheable(value = "productCategories")
     @GetMapping(produces = "application/json")
@@ -99,8 +93,8 @@ public class ProductCategoryController {
 
         CategoryDTO createdCategory = categoryMapper.productCategoryToCategoryDto(createdEntity);
         EntityModel<CategoryDTO> model = modelAssembler.assemble(createdCategory);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .location(model.getLink(IanaLinkRelations.SELF).get().toUri())
+        return ResponseEntity.created(
+                        linkTo(methodOn(ProductCategoryController.class).getByName(category.getName())).toUri())
                 .body(model);
     }
 

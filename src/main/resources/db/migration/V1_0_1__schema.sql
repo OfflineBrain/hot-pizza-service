@@ -22,8 +22,9 @@ CREATE TABLE hotp.product
     category    uuid             not null,
     price       decimal          not null,
     amount      int              not null,
-    amount_unit hotp.amount_unit,
-    CONSTRAINT fk_category_product FOREIGN KEY (category) REFERENCES hotp.product_category (uuid)
+    amount_unit text,
+    CONSTRAINT fk_category_product FOREIGN KEY (category) REFERENCES hotp.product_category (uuid),
+    CONSTRAINT product_amount_unit_check CHECK ( cast(amount_unit as hotp.amount_unit) IS NOT NULL)
 );
 
 CREATE UNIQUE INDEX unique_product_name_idx ON hotp.product (lower(name));
@@ -53,12 +54,13 @@ CREATE TABLE hotp.client_order
     uuid              uuid primary key not null default gen_random_uuid(),
     client            uuid             not null,
     number            bigserial,
-    state             hotp.order_state not null default 'NEW',
+    state             text not null default 'NEW',
     creation_date     timestamp        not null default now(),
     last_updated_date timestamp        not null default now(),
     client_comment    text,
     service_comment   text,
-    CONSTRAINT fk_client_order_client_user FOREIGN KEY (client) REFERENCES hotp.client_user (uuid)
+    CONSTRAINT fk_client_order_client_user FOREIGN KEY (client) REFERENCES hotp.client_user (uuid),
+    CONSTRAINT product_amount_unit_check CHECK ( cast(state as hotp.order_state) IS NOT NULL)
 );
 CREATE UNIQUE INDEX unique_order_number_idx ON hotp.client_order (number);
 CREATE INDEX order_state_idx ON hotp.client_order (state);

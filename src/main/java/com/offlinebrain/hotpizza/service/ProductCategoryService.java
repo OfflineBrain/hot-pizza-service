@@ -2,6 +2,7 @@ package com.offlinebrain.hotpizza.service;
 
 import com.offlinebrain.hotpizza.data.model.ProductCategory;
 import com.offlinebrain.hotpizza.data.repository.ProductCategoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,12 +11,9 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ProductCategoryService {
     private final ProductCategoryRepository categoryRepository;
-
-    public ProductCategoryService(ProductCategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     public List<ProductCategory> findAll() {
         return categoryRepository.findAll();

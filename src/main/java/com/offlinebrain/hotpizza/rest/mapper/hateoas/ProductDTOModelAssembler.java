@@ -1,7 +1,8 @@
 package com.offlinebrain.hotpizza.rest.mapper.hateoas;
 
 import com.offlinebrain.hotpizza.rest.controller.ProductCategoryController;
-import com.offlinebrain.hotpizza.rest.model.category.CategoryDTO;
+import com.offlinebrain.hotpizza.rest.controller.ProductController;
+import com.offlinebrain.hotpizza.rest.model.product.ProductDTO;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Component;
@@ -13,17 +14,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class CategoryDTOModelAssembler {
-    public CollectionModel<EntityModel<CategoryDTO>> assemble(List<CategoryDTO> categories) {
-        List<EntityModel<CategoryDTO>> entityModels = categories.stream()
+public class ProductDTOModelAssembler {
+    public CollectionModel<EntityModel<ProductDTO>> assemble(List<ProductDTO> dto) {
+        List<EntityModel<ProductDTO>> entityModels = dto.stream()
                 .map(this::assemble)
                 .collect(Collectors.toList());
         return CollectionModel.of(entityModels,
-                linkTo(methodOn(ProductCategoryController.class).getAll()).withRel("all"));
+                linkTo(methodOn(ProductController.class).getAll()).withSelfRel());
     }
 
-    public EntityModel<CategoryDTO> assemble(CategoryDTO category) {
-        return EntityModel.of(category)
-                .add(linkTo(methodOn(ProductCategoryController.class).getByName(category.getName())).withSelfRel());
+    public EntityModel<ProductDTO> assemble(ProductDTO dto) {
+        return EntityModel.of(dto)
+                .add(linkTo(methodOn(ProductController.class).getByName(dto.getName())).withSelfRel());
     }
 }

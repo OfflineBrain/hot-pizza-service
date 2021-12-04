@@ -50,6 +50,7 @@ class ProductCategoryControllerIT extends AbstractIT {
     private TestRestTemplate restTemplate;
 
     @Test
+    @DisplayName("Required beans loaded")
     void contextLoads() {
         Assertions.assertNotNull(controller);
         Assertions.assertNotNull(repository);
