@@ -20,11 +20,13 @@ public class ProductDTOModelAssembler {
                 .map(this::assemble)
                 .collect(Collectors.toList());
         return CollectionModel.of(entityModels,
-                linkTo(methodOn(ProductController.class).getAll()).withSelfRel());
+                linkTo(methodOn(ProductController.class).getAll()).withRel("all"));
     }
 
     public EntityModel<ProductDTO> assemble(ProductDTO dto) {
         return EntityModel.of(dto)
-                .add(linkTo(methodOn(ProductController.class).getByName(dto.getName())).withSelfRel());
+                .add(linkTo(methodOn(ProductController.class).getByName(dto.getName())).withSelfRel())
+                .add(linkTo(methodOn(ProductCategoryController.class).getByName(dto.getCategoryName()))
+                        .withRel("category"));
     }
 }

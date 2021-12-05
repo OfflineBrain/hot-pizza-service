@@ -1,6 +1,7 @@
 package com.offlinebrain.hotpizza.rest.mapper.hateoas;
 
 import com.offlinebrain.hotpizza.rest.controller.ProductCategoryController;
+import com.offlinebrain.hotpizza.rest.controller.ProductController;
 import com.offlinebrain.hotpizza.rest.model.category.CategoryDTO;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -23,7 +24,14 @@ public class CategoryDTOModelAssembler {
     }
 
     public EntityModel<CategoryDTO> assemble(CategoryDTO category) {
-        return EntityModel.of(category)
-                .add(linkTo(methodOn(ProductCategoryController.class).getByName(category.getName())).withSelfRel());
+        EntityModel<CategoryDTO> model = EntityModel.of(category)
+                .add(linkTo(methodOn(ProductCategoryController.class).getByName(category.getName())).withSelfRel())
+                .add(linkTo(methodOn(ProductController.class).getAllByCategory(category.getName()))
+                        .withRel("products"));
+        if (category.getParent() != null) {
+            model.add(linkTo(methodOn(ProductCategoryController.class).getSubcategories(category.getName()))
+                    .withRel("subcategories"));
+        }
+        return model;
     }
 }

@@ -21,7 +21,7 @@ public class ProductDTO {
     private UUID uuid;
     private String name;
     private String description;
-    private UUID categoryUUID;
+    private String categoryName;
     private BigDecimal price;
     private Integer amount;
     private AmountUnit amountUnit;

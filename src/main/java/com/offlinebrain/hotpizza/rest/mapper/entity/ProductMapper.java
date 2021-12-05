@@ -19,7 +19,7 @@ public class ProductMapper {
                 .amountUnit(product.getAmountUnit())
                 .price(product.getPrice())
                 .uuid(product.getUuid())
-                .categoryUUID(product.getCategory().getUuid())
+                .categoryName(product.getCategory().getName())
                 .build();
     }
 
