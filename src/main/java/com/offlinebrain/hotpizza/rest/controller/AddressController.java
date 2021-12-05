@@ -55,7 +55,7 @@ public class AddressController {
 
     @Caching(evict = {@CacheEvict(value = "addresses")},
             put = {@CachePut(value = "address", key = "#result.body.content.uuid")})
-    @GetMapping(value = "/addresses", produces = "application/json", consumes = "application/json")
+    @PostMapping(value = "/addresses", produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<EntityModel<AddressDTO>> addAddress(@RequestBody CreateAddressDTO dto) {
         Address address = addressMapper.createAddressDtoToAddress(dto);
