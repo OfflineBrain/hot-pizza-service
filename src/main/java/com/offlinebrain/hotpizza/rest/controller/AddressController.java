@@ -36,7 +36,7 @@ public class AddressController {
     private final AddressMapper addressMapper;
     private final AddressDTOModelAssembler assembler;
 
-    @Cacheable(value = "addresses", key = "uuid")
+    @Cacheable(value = "addresses", key = "#uuid")
     @GetMapping(value = "/clients/{uuid}/addresses", produces = "application/json")
     @ResponseBody
     public ResponseEntity<CollectionModel<EntityModel<AddressDTO>>> getAllByUser(@PathVariable @NotNull UUID uuid) {
@@ -45,7 +45,7 @@ public class AddressController {
         return ResponseEntity.ok(assembler.assemble(addresses));
     }
 
-    @Cacheable(value = "address", key = "uuid")
+    @Cacheable(value = "address", key = "#uuid")
     @GetMapping(value = "/addresses/{uuid}", produces = "application/json")
     @ResponseBody
     public ResponseEntity<EntityModel<AddressDTO>> getByUUID(@PathVariable @NotNull UUID uuid) {
@@ -66,7 +66,7 @@ public class AddressController {
     }
 
     @Caching(evict = {@CacheEvict(value = "addresses"),
-            @CacheEvict(value = "address", key = "uuid")})
+            @CacheEvict(value = "address", key = "#uuid")})
     @DeleteMapping("/addresses/{uuid}")
     @ResponseBody
     public ResponseEntity<Object> removeAddress(@PathVariable @NotNull UUID uuid) {

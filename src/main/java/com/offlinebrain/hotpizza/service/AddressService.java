@@ -33,7 +33,8 @@ public class AddressService {
     }
 
     public boolean deleteAddress(UUID uuid) {
+        boolean existsById = addressRepository.existsById(uuid);
         addressRepository.deleteById(uuid);
-        return addressRepository.existsById(uuid);
+        return existsById && !addressRepository.existsById(uuid);
     }
 }
