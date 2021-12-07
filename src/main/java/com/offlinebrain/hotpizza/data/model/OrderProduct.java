@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,6 +25,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "order_product")
 @IdClass(OrderProduct.Key.class)
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class OrderProduct {
     @Id
     @ManyToOne

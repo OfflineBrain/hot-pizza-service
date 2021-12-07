@@ -20,42 +20,9 @@ services:
     networks:
       - database
 
-  #  dbeaver:
-  #    image: dbeaver/cloudbeaver:latest
-  #    depends_on:
-  #      - postgres
-  #    ports:
-  #      - "8901:8978"
-
-  graphite:
-    image: graphiteapp/graphite-statsd
-    hostname: graphite
-    restart: always
-    ports:
-      - "8902:80"
-      - "2003-2004:2003-2004"
-      - "2023-2024:2023-2024"
-      - "8125:8125"
-      - "8126:8126"
-    networks:
-      - metrics
-
-
-#
-#  pushgateway:
-#    image: prom/pushgateway
-#    hostname: pushgateway
-#    restart: always
-#    ports:
-#      - "9091:9091"
-#    networks:
-#      - metrics
-
   prometheus:
     image: prom/prometheus
     hostname: prometheus
-    depends_on:
-      - pushgateway
     restart: always
     volumes:
       - "./prometheus/prometheus.yml://etc/prometheus/prometheus.yml"
@@ -72,3 +39,11 @@ services:
     networks:
       - metrics
       - database
+
+  hazelcast:
+    image: hazelcast/hazelcast
+    environment:
+      HZ_NETWORK_PUBLICADDRESS: "localhost:5701"
+      LOGGING_LEVEL: DEBUG
+    ports:
+      - "5701:5701"

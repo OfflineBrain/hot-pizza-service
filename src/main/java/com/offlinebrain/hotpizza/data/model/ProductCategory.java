@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,6 +27,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "product_category")
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class ProductCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

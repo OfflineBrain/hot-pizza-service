@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

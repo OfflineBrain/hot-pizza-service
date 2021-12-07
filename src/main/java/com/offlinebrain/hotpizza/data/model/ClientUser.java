@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "client_user")
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class ClientUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
