@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,7 +18,9 @@ import lombok.ToString;
 @Builder
 @ToString
 public class CreateClientDTO {
+    @NotEmpty
     private String name;
     @PhoneNumber
+    @NotNull
     private String phone;
 }
