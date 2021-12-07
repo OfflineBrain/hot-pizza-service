@@ -1,5 +1,6 @@
 package com.offlinebrain.hotpizza.rest.model.client;
 
+import com.offlinebrain.hotpizza.rest.validation.PhoneNumber;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +16,6 @@ import lombok.ToString;
 @ToString
 public class CreateClientDTO {
     private String name;
+    @PhoneNumber
     private String phone;
 }
