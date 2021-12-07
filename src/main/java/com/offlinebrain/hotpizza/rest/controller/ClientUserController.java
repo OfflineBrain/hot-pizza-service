@@ -33,7 +33,7 @@ public class ClientUserController {
     private final ClientMapper clientMapper;
     private final ClientDTOModelAssembler modelAssembler;
 
-    @GetMapping(value = "/{uuid}", produces = "application/json")
+    @GetMapping(value = "/{uuid}", produces = "application/hal+json")
     public ResponseEntity<EntityModel<ClientDTO>> getById(@PathVariable @NotNull UUID uuid) {
         ClientUser clientUser = clientUserService.getByUUID(uuid);
         EntityModel<ClientDTO> model = modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
@@ -41,7 +41,7 @@ public class ClientUserController {
         return ResponseEntity.ok(model);
     }
 
-    @GetMapping(value = "/phone/{phone}", produces = "application/json")
+    @GetMapping(value = "/phone/{phone}", produces = "application/hal+json")
     public ResponseEntity<EntityModel<ClientDTO>> getByPhone(@PathVariable @PhoneNumber String phone) {
         ClientUser clientUser = clientUserService.getByPhone(phone);
         EntityModel<ClientDTO> model = modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
@@ -49,7 +49,7 @@ public class ClientUserController {
         return ResponseEntity.ok(model);
     }
 
-    @PostMapping(consumes = "application/json", produces = "application/json")
+    @PostMapping(consumes = "application/json", produces = "application/hal+json")
     public ResponseEntity<EntityModel<ClientDTO>> create(@RequestBody @Valid CreateClientDTO dto) {
         ClientUser clientUser = clientUserService.create(clientMapper.createClientDtoToClient(dto));
         EntityModel<ClientDTO> model = modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
