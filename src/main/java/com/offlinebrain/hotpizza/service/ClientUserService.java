@@ -3,6 +3,7 @@ package com.offlinebrain.hotpizza.service;
 import com.offlinebrain.hotpizza.data.model.ClientUser;
 import com.offlinebrain.hotpizza.data.repository.ClientRepository;
 import com.offlinebrain.hotpizza.exception.ResourceExistsException;
+import com.offlinebrain.hotpizza.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +36,11 @@ public class ClientUserService {
     }
 
     public boolean delete(UUID uuid) {
-        boolean existsById = clientRepository.existsById(uuid);
+        boolean exists = clientRepository.existsById(uuid);
+        if (!exists) {
+            throw new ResourceNotFoundException("ProductCategory", "ID", uuid.toString());
+        }
         clientRepository.deleteById(uuid);
-        return existsById && !clientRepository.existsById(uuid);
+        return !clientRepository.existsById(uuid);
     }
 }

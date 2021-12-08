@@ -9,21 +9,19 @@ import com.offlinebrain.hotpizza.rest.validation.PhoneNumber;
 import com.offlinebrain.hotpizza.service.ClientUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,38 +32,30 @@ public class ClientUserController {
     private final ClientDTOModelAssembler modelAssembler;
 
     @GetMapping(value = "/{uuid}", produces = "application/hal+json")
-    public ResponseEntity<EntityModel<ClientDTO>> getById(@PathVariable @NotNull UUID uuid) {
+    public EntityModel<ClientDTO> getById(@PathVariable @NotNull UUID uuid) {
         ClientUser clientUser = clientUserService.getByUUID(uuid);
-        EntityModel<ClientDTO> model = modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
 
-        return ResponseEntity.ok(model);
+        return modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
     }
 
     @GetMapping(value = "/phone/{phone}", produces = "application/hal+json")
-    public ResponseEntity<EntityModel<ClientDTO>> getByPhone(@PathVariable @PhoneNumber String phone) {
+    public EntityModel<ClientDTO> getByPhone(@PathVariable @PhoneNumber String phone) {
         ClientUser clientUser = clientUserService.getByPhone(phone);
-        EntityModel<ClientDTO> model = modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
 
-        return ResponseEntity.ok(model);
+        return modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
     }
 
     @PostMapping(consumes = "application/json", produces = "application/hal+json")
-    public ResponseEntity<EntityModel<ClientDTO>> create(@RequestBody @Valid CreateClientDTO dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public EntityModel<ClientDTO> create(@RequestBody @Valid CreateClientDTO dto) {
         ClientUser clientUser = clientUserService.create(clientMapper.createClientDtoToClient(dto));
-        EntityModel<ClientDTO> model = modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
 
-        return ResponseEntity.created(
-                        linkTo(methodOn(ClientUserController.class).getById(clientUser.getUuid())).toUri())
-                .body(model);
+        return modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
     }
 
     @DeleteMapping(value = "/{uuid}")
-    public ResponseEntity<Object> delete(@PathVariable @NotNull UUID uuid) {
-        boolean deleted = clientUserService.delete(uuid);
-
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable @NotNull UUID uuid) {
+        clientUserService.delete(uuid);
     }
 }

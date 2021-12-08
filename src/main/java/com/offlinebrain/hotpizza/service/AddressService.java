@@ -39,8 +39,11 @@ public class AddressService {
     }
 
     public boolean deleteAddress(UUID uuid) {
-        boolean existsById = addressRepository.existsById(uuid);
+        boolean exists = addressRepository.existsById(uuid);
+        if (!exists) {
+            throw new ResourceNotFoundException("Address", "ID", uuid.toString());
+        }
         addressRepository.deleteById(uuid);
-        return existsById && !addressRepository.existsById(uuid);
+        return !addressRepository.existsById(uuid);
     }
 }

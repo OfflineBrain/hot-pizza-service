@@ -49,6 +49,8 @@ public class ProductService {
     }
 
     public boolean deleteByName(String name) {
+        productRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "name", name));
         return productRepository.deleteByName(name) == 1;
     }
 }

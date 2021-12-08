@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -27,6 +28,11 @@ public class ProductCategoryService {
     }
 
     public ProductCategory createCategory(ProductCategory category) {
+        if (Objects.nonNull(category.getParent())) {
+            categoryRepository.findById(category.getParent().getUuid())
+                    .orElseThrow(() -> new ResourceNotFoundException("ProductCategory", "ID",
+                            category.getParent().getUuid().toString()));
+        }
         categoryRepository.findByName(category.getName())
                 .ifPresent(productCategory -> {
                     throw new ResourceExistsException("ProductCategory", "name", productCategory.getName());
@@ -40,6 +46,8 @@ public class ProductCategoryService {
     }
 
     public boolean deleteCategoryByName(String name) {
+        categoryRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("ProductCategory", "name", name));
         return categoryRepository.deleteByName(name) == 1;
     }
 }
