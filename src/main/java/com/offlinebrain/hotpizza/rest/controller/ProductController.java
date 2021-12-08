@@ -4,7 +4,7 @@ import com.offlinebrain.hotpizza.data.model.Product;
 import com.offlinebrain.hotpizza.rest.mapper.entity.ProductMapper;
 import com.offlinebrain.hotpizza.rest.mapper.hateoas.ProductDTOModelAssembler;
 import com.offlinebrain.hotpizza.rest.model.product.CreateProductDTO;
-import com.offlinebrain.hotpizza.rest.model.product.ProductDTO;
+import com.offlinebrain.hotpizza.rest.model.product.ProductModel;
 import com.offlinebrain.hotpizza.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,26 +35,26 @@ public class ProductController {
     @Cacheable(value = "products")
     @GetMapping(value = "/products", produces = "application/json")
     @ResponseBody
-    public CollectionModel<EntityModel<ProductDTO>> getAll() {
+    public CollectionModel<ProductModel> getAll() {
         List<Product> all = productService.findAll();
-        List<ProductDTO> productDTOs = all.stream().map(productMapper::productToProductDto).toList();
-        return modelAssembler.assemble(productDTOs);
+        List<ProductModel> productModels = all.stream().map(productMapper::productToProductDto).toList();
+        return modelAssembler.assemble(productModels);
     }
 
     @Cacheable(value = "products", key = "#category.toLowerCase()")
     @GetMapping(value = "/categories/{category}/products", produces = "application/json")
     @ResponseBody
-    public CollectionModel<EntityModel<ProductDTO>> getAllByCategory(
+    public CollectionModel<ProductModel> getAllByCategory(
             @PathVariable @NotEmpty String category) {
         List<Product> all = productService.findByCategoryName(category);
-        List<ProductDTO> productDTOs = all.stream().map(productMapper::productToProductDto).toList();
-        return modelAssembler.assemble(productDTOs);
+        List<ProductModel> productModels = all.stream().map(productMapper::productToProductDto).toList();
+        return modelAssembler.assemble(productModels);
     }
 
     @Cacheable(value = "product", key = "#name.toLowerCase()")
     @GetMapping(value = "/products/{name}", produces = "application/json")
     @ResponseBody
-    public EntityModel<ProductDTO> getByName(@PathVariable @NotEmpty String name) {
+    public ProductModel getByName(@PathVariable @NotEmpty String name) {
         Product product = productService.findByName(name);
         return modelAssembler.assemble(productMapper.productToProductDto(product));
     }
@@ -63,7 +63,7 @@ public class ProductController {
     @PostMapping(value = "/products", consumes = "application/json", produces = "application/json")
     @ResponseBody
     @ResponseStatus(code = HttpStatus.CREATED)
-    public EntityModel<ProductDTO> createProduct(@RequestBody CreateProductDTO dto) {
+    public ProductModel createProduct(@RequestBody CreateProductDTO dto) {
         Product saved = productService.create(productMapper.createProductDtoToProduct(dto));
         return modelAssembler.assemble(productMapper.productToProductDto(saved));
     }

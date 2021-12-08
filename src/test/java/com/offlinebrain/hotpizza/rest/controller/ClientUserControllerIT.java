@@ -3,7 +3,7 @@ package com.offlinebrain.hotpizza.rest.controller;
 import com.offlinebrain.hotpizza.AbstractIT;
 import com.offlinebrain.hotpizza.data.model.ClientUser;
 import com.offlinebrain.hotpizza.data.repository.ClientRepository;
-import com.offlinebrain.hotpizza.rest.model.client.ClientDTO;
+import com.offlinebrain.hotpizza.rest.model.client.ClientModel;
 import com.offlinebrain.hotpizza.rest.model.client.CreateClientDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +51,7 @@ public class ClientUserControllerIT extends AbstractIT {
         void testClientCreation() {
             String clientName = "ClientUserControllerIT.name";
             String clientPhone = "+0003322111";
-            ResponseEntity<EntityModel<ClientDTO>> response = restTemplate.exchange("/clients", HttpMethod.POST,
+            ResponseEntity<EntityModel<ClientModel>> response = restTemplate.exchange("/clients", HttpMethod.POST,
                     new HttpEntity<>(CreateClientDTO.builder()
                             .name(clientName)
                             .phone(clientPhone)
@@ -61,7 +61,7 @@ public class ClientUserControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             assertNotNull(response.getBody());
-            ClientDTO client = response.getBody().getContent();
+            ClientModel client = response.getBody().getContent();
             assertNotNull(client);
             assertEquals(clientName, client.getName());
             assertEquals(clientPhone, client.getPhone());
@@ -91,7 +91,7 @@ public class ClientUserControllerIT extends AbstractIT {
         @DisplayName("Get client by UUID")
         void testGetByUUID() {
             String path = "/clients/" + clientUser.getUuid();
-            ResponseEntity<EntityModel<ClientDTO>> response = restTemplate.exchange(path, HttpMethod.GET,
+            ResponseEntity<EntityModel<ClientModel>> response = restTemplate.exchange(path, HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
                     });
@@ -103,7 +103,7 @@ public class ClientUserControllerIT extends AbstractIT {
         @DisplayName("Get client by phone number")
         void testGetByPhone() {
             String path = "/clients/phone/" + clientUser.getPhone();
-            ResponseEntity<EntityModel<ClientDTO>> response = restTemplate.exchange(path, HttpMethod.GET,
+            ResponseEntity<EntityModel<ClientModel>> response = restTemplate.exchange(path, HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
                     });
@@ -111,10 +111,10 @@ public class ClientUserControllerIT extends AbstractIT {
             assertClient(response);
         }
 
-        private void assertClient(ResponseEntity<EntityModel<ClientDTO>> response) {
+        private void assertClient(ResponseEntity<EntityModel<ClientModel>> response) {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            ClientDTO client = response.getBody().getContent();
+            ClientModel client = response.getBody().getContent();
             assertNotNull(client);
             assertEquals(clientUser.getName(), client.getName());
             assertEquals(clientUser.getPhone(), client.getPhone());
@@ -143,7 +143,7 @@ public class ClientUserControllerIT extends AbstractIT {
         @DisplayName("Delete client")
         void testDeleteByUUID() {
             String path = "/clients/" + clientUser.getUuid();
-            ResponseEntity<EntityModel<ClientDTO>> response = restTemplate.exchange(path, HttpMethod.DELETE,
+            ResponseEntity<EntityModel<ClientModel>> response = restTemplate.exchange(path, HttpMethod.DELETE,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
                     });

@@ -7,7 +7,7 @@ import com.offlinebrain.hotpizza.data.model.ProductCategory;
 import com.offlinebrain.hotpizza.data.repository.ProductCategoryRepository;
 import com.offlinebrain.hotpizza.data.repository.ProductRepository;
 import com.offlinebrain.hotpizza.rest.model.product.CreateProductDTO;
-import com.offlinebrain.hotpizza.rest.model.product.ProductDTO;
+import com.offlinebrain.hotpizza.rest.model.product.ProductModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,10 +66,7 @@ class ProductControllerIT extends AbstractIT {
     @Nested
     @DisplayName("Product creation API")
     class ProductCreation {
-        private String path = "/products";
         private ProductCategory productCategory;
-
-        private String productName = "ProductControllerIT.productName";
 
         @BeforeEach
         void setUp() {
@@ -86,6 +83,7 @@ class ProductControllerIT extends AbstractIT {
         @Test
         @DisplayName("Create product")
         void createProduct() {
+            String productName = "ProductControllerIT.productName";
             CreateProductDTO createProductDTO = CreateProductDTO.builder()
                     .name(productName)
                     .price(new BigDecimal("99.99"))
@@ -95,20 +93,21 @@ class ProductControllerIT extends AbstractIT {
                     .amount(1000)
                     .build();
 
-            ResponseEntity<EntityModel<ProductDTO>> response = restTemplate.exchange(path, HttpMethod.POST,
+            String path = "/products";
+            ResponseEntity<EntityModel<ProductModel>> response = restTemplate.exchange(path, HttpMethod.POST,
                     new HttpEntity<>(createProductDTO),
                     new ParameterizedTypeReference<>() {
                     });
 
-            ProductDTO productDTO = assertProductCategoryCreation(response, productName);
-            logger.info(productDTO::toString);
+            ProductModel productModel = assertProductCategoryCreation(response, productName);
+            logger.info(productModel::toString);
         }
 
-        private ProductDTO assertProductCategoryCreation(ResponseEntity<EntityModel<ProductDTO>> response,
-                                                         String name) {
+        private ProductModel assertProductCategoryCreation(ResponseEntity<EntityModel<ProductModel>> response,
+                                                           String name) {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             assertNotNull(response.getBody());
-            ProductDTO product = response.getBody().getContent();
+            ProductModel product = response.getBody().getContent();
             assertNotNull(product);
             assertEquals(name, product.getName());
             assertNotNull(product.getUuid());
@@ -127,13 +126,12 @@ class ProductControllerIT extends AbstractIT {
                 "ProductCategoryControllerIT.categoryName12",
                 "ProductCategoryControllerIT.categoryName13");
         private final String path = "/products";
-        private ProductCategory firstProductCategory;
+        private final List<Product> dbProducts = new ArrayList<>();
         private ProductCategory secondProductCategory;
-        private List<Product> dbProducts = new ArrayList<>();
 
         @BeforeEach
         void setUp() {
-            firstProductCategory = categoryRepository.saveAndFlush(ProductCategory.builder()
+            ProductCategory firstProductCategory = categoryRepository.saveAndFlush(ProductCategory.builder()
                     .name("ProductControllerIT.productCategory1").build());
             secondProductCategory = categoryRepository.saveAndFlush(ProductCategory.builder()
                     .name("ProductControllerIT.productCategory2").build());
@@ -154,14 +152,14 @@ class ProductControllerIT extends AbstractIT {
             String name = firstProductNames.get(0);
             String getPath = path + "/" + name;
 
-            ResponseEntity<EntityModel<ProductDTO>> response = restTemplate.exchange(getPath, HttpMethod.GET,
+            ResponseEntity<EntityModel<ProductModel>> response = restTemplate.exchange(getPath, HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
                     });
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            ProductDTO product = response.getBody().getContent();
+            ProductModel product = response.getBody().getContent();
             assertNotNull(product);
             assertEquals(name, product.getName());
             assertNotNull(product.getUuid());
@@ -170,7 +168,7 @@ class ProductControllerIT extends AbstractIT {
         @Test
         @DisplayName("Get all products")
         void testGetAll() {
-            ResponseEntity<CollectionModel<EntityModel<ProductDTO>>> response = restTemplate.exchange(path,
+            ResponseEntity<CollectionModel<EntityModel<ProductModel>>> response = restTemplate.exchange(path,
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
@@ -178,9 +176,9 @@ class ProductControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            Collection<EntityModel<ProductDTO>> collection = response.getBody().getContent();
+            Collection<EntityModel<ProductModel>> collection = response.getBody().getContent();
             assertFalse(collection.isEmpty());
-            List<ProductDTO> categories = collection.stream().map(EntityModel::getContent).toList();
+            List<ProductModel> categories = collection.stream().map(EntityModel::getContent).toList();
             assertEquals(dbProducts.size(), categories.size());
         }
 
@@ -188,7 +186,7 @@ class ProductControllerIT extends AbstractIT {
         @DisplayName("Get all products by category")
         void testGetByCategory() {
             String getPath = "/categories/" + secondProductCategory.getName() + "/products";
-            ResponseEntity<CollectionModel<EntityModel<ProductDTO>>> response = restTemplate.exchange(getPath,
+            ResponseEntity<CollectionModel<EntityModel<ProductModel>>> response = restTemplate.exchange(getPath,
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
@@ -196,9 +194,9 @@ class ProductControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            Collection<EntityModel<ProductDTO>> collection = response.getBody().getContent();
+            Collection<EntityModel<ProductModel>> collection = response.getBody().getContent();
             assertFalse(collection.isEmpty());
-            List<ProductDTO> categories = collection.stream().map(EntityModel::getContent).toList();
+            List<ProductModel> categories = collection.stream().map(EntityModel::getContent).toList();
             assertEquals(secondProductNames.size(), categories.size());
         }
 
@@ -218,10 +216,7 @@ class ProductControllerIT extends AbstractIT {
     @Nested
     @DisplayName("Product delete API")
     class ProductDeletion {
-        private String path = "/products";
         private ProductCategory productCategory;
-
-        private String productName = "ProductControllerIT.productName";
 
         @BeforeEach
         void setUp() {
@@ -238,6 +233,7 @@ class ProductControllerIT extends AbstractIT {
         @Test
         @DisplayName("Delete product by name")
         void testProductByName() {
+            String productName = "ProductControllerIT.productName";
             Product product = Product.builder()
                     .name(productName)
                     .price(new BigDecimal("99.99"))
@@ -247,6 +243,7 @@ class ProductControllerIT extends AbstractIT {
                     .amount(1000)
                     .build();
             productRepository.saveAndFlush(product);
+            String path = "/products";
             String deletePath = path + "/" + productName;
 
             ResponseEntity<Object> response = restTemplate.exchange(deletePath, HttpMethod.DELETE,

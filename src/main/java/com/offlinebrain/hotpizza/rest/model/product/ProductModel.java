@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ToString
-public class ProductDTO {
+public class ProductModel extends RepresentationModel<ProductModel> {
     private UUID uuid;
     private String name;
     private String description;

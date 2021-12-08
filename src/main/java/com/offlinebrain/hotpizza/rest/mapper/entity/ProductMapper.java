@@ -3,7 +3,7 @@ package com.offlinebrain.hotpizza.rest.mapper.entity;
 import com.offlinebrain.hotpizza.data.model.Product;
 import com.offlinebrain.hotpizza.data.model.ProductCategory;
 import com.offlinebrain.hotpizza.rest.model.product.CreateProductDTO;
-import com.offlinebrain.hotpizza.rest.model.product.ProductDTO;
+import com.offlinebrain.hotpizza.rest.model.product.ProductModel;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -11,8 +11,8 @@ import java.util.UUID;
 
 @Component
 public class ProductMapper {
-    public ProductDTO productToProductDto(Product product) {
-        return ProductDTO.builder()
+    public ProductModel productToProductDto(Product product) {
+        return ProductModel.builder()
                 .name(product.getName())
                 .description(product.getDescription())
                 .amount(product.getAmount())

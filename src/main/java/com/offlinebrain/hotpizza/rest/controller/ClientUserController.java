@@ -3,12 +3,11 @@ package com.offlinebrain.hotpizza.rest.controller;
 import com.offlinebrain.hotpizza.data.model.ClientUser;
 import com.offlinebrain.hotpizza.rest.mapper.entity.ClientMapper;
 import com.offlinebrain.hotpizza.rest.mapper.hateoas.ClientDTOModelAssembler;
-import com.offlinebrain.hotpizza.rest.model.client.ClientDTO;
+import com.offlinebrain.hotpizza.rest.model.client.ClientModel;
 import com.offlinebrain.hotpizza.rest.model.client.CreateClientDTO;
 import com.offlinebrain.hotpizza.rest.validation.PhoneNumber;
 import com.offlinebrain.hotpizza.service.ClientUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,14 +31,14 @@ public class ClientUserController {
     private final ClientDTOModelAssembler modelAssembler;
 
     @GetMapping(value = "/{uuid}", produces = "application/hal+json")
-    public EntityModel<ClientDTO> getById(@PathVariable @NotNull UUID uuid) {
+    public ClientModel getById(@PathVariable @NotNull UUID uuid) {
         ClientUser clientUser = clientUserService.getByUUID(uuid);
 
         return modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
     }
 
     @GetMapping(value = "/phone/{phone}", produces = "application/hal+json")
-    public EntityModel<ClientDTO> getByPhone(@PathVariable @PhoneNumber String phone) {
+    public ClientModel getByPhone(@PathVariable @PhoneNumber String phone) {
         ClientUser clientUser = clientUserService.getByPhone(phone);
 
         return modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
@@ -47,7 +46,7 @@ public class ClientUserController {
 
     @PostMapping(consumes = "application/json", produces = "application/hal+json")
     @ResponseStatus(HttpStatus.CREATED)
-    public EntityModel<ClientDTO> create(@RequestBody @Valid CreateClientDTO dto) {
+    public ClientModel create(@RequestBody @Valid CreateClientDTO dto) {
         ClientUser clientUser = clientUserService.create(clientMapper.createClientDtoToClient(dto));
 
         return modelAssembler.assemble(clientMapper.clientToClientDto(clientUser));
