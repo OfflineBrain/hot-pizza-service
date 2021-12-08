@@ -3,7 +3,7 @@ package com.offlinebrain.hotpizza.rest.controller;
 import com.offlinebrain.hotpizza.data.model.ProductCategory;
 import com.offlinebrain.hotpizza.rest.mapper.entity.CategoryMapper;
 import com.offlinebrain.hotpizza.rest.mapper.hateoas.CategoryDTOModelAssembler;
-import com.offlinebrain.hotpizza.rest.model.category.CategoryDTO;
+import com.offlinebrain.hotpizza.rest.model.category.CategoryModel;
 import com.offlinebrain.hotpizza.rest.model.category.CreateCategoryDTO;
 import com.offlinebrain.hotpizza.service.ProductCategoryService;
 import io.micrometer.core.instrument.Counter;
@@ -13,7 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +30,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 @RestController
 @RequestMapping("/categories")
@@ -41,51 +44,55 @@ public class ProductCategoryController {
     private final MeterRegistry meterRegistry;
 
     @Cacheable(value = "productCategories")
-    @GetMapping(produces = "application/json")
+    @GetMapping(produces = "application/hal+json")
     @ResponseBody
-    public CollectionModel<EntityModel<CategoryDTO>> getAll() {
+    public CollectionModel<CategoryModel> getAll() {
         List<ProductCategory> productCategories = categoryService.findAll();
-        List<CategoryDTO> categories = productCategories.stream()
+        List<CategoryModel> categories = productCategories.stream()
                 .map(categoryMapper::productCategoryToCategoryDto)
                 .collect(Collectors.toList());
-        return modelAssembler.assemble(categories);
+        Link self = linkTo(methodOn(ProductCategoryController.class).getAll()).withSelfRel();
+        return modelAssembler.assemble(categories)
+                .add(self);
     }
 
     @Cacheable(value = "productCategory", key = "#name.toLowerCase()")
     @GetMapping(value = "/{name}", produces = "application/json")
     @ResponseBody
-    public EntityModel<CategoryDTO> getByName(@PathVariable("name") @NotEmpty String name) {
+    public CategoryModel getByName(@PathVariable("name") @NotEmpty String name) {
         Counter.builder("http.request.total")
                 .tag("endpoint", "get-category-by-name")
                 .register(meterRegistry)
                 .increment();
 
         ProductCategory categoryByName = categoryService.findCategoryByName(name);
-        CategoryDTO category = categoryMapper.productCategoryToCategoryDto(categoryByName);
+        CategoryModel category = categoryMapper.productCategoryToCategoryDto(categoryByName);
         return modelAssembler.assemble(category);
     }
 
     @Cacheable(value = "productCategories", key = "#name.toLowerCase()")
-    @GetMapping(value = "/{name}/subcategories", produces = "application/json")
+    @GetMapping(value = "/{name}/subcategories", produces = "application/hal+json")
     @ResponseBody
-    public CollectionModel<EntityModel<CategoryDTO>> getSubcategories(
+    public CollectionModel<CategoryModel> getSubcategories(
             @PathVariable("name") @NotEmpty String name) {
         List<ProductCategory> productCategories = categoryService.findAllSubcategories(name);
-        List<CategoryDTO> categories = productCategories.stream()
+        List<CategoryModel> categories = productCategories.stream()
                 .map(categoryMapper::productCategoryToCategoryDto)
                 .collect(Collectors.toList());
-        return modelAssembler.assemble(categories);
+
+        Link self = linkTo(methodOn(ProductCategoryController.class).getSubcategories(name)).withSelfRel();
+        return modelAssembler.assemble(categories).add(self);
     }
 
     @Caching(evict = {@CacheEvict(value = "productCategories")})
     @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public EntityModel<CategoryDTO> create(@RequestBody @NotNull CreateCategoryDTO category) {
+    public CategoryModel create(@RequestBody @NotNull CreateCategoryDTO category) {
         ProductCategory persistenceEntity = categoryMapper.createCategoryDtoToProductCategory(category);
         ProductCategory createdEntity = categoryService.createCategory(persistenceEntity);
 
-        CategoryDTO createdCategory = categoryMapper.productCategoryToCategoryDto(createdEntity);
+        CategoryModel createdCategory = categoryMapper.productCategoryToCategoryDto(createdEntity);
         return modelAssembler.assemble(createdCategory);
     }
 

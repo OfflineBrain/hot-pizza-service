@@ -1,7 +1,7 @@
 package com.offlinebrain.hotpizza.rest.mapper.entity;
 
 import com.offlinebrain.hotpizza.data.model.ProductCategory;
-import com.offlinebrain.hotpizza.rest.model.category.CategoryDTO;
+import com.offlinebrain.hotpizza.rest.model.category.CategoryModel;
 import com.offlinebrain.hotpizza.rest.model.category.CreateCategoryDTO;
 import org.springframework.stereotype.Component;
 
@@ -11,15 +11,15 @@ import java.util.UUID;
 
 @Component
 public class CategoryMapper {
-    public CategoryDTO productCategoryToCategoryDto(ProductCategory category) {
-        return CategoryDTO.builder()
+    public CategoryModel productCategoryToCategoryDto(ProductCategory category) {
+        return CategoryModel.builder()
                 .uuid(category.getUuid())
                 .name(category.getName())
                 .parent(Optional.ofNullable(category.getParent()).map(ProductCategory::getUuid).orElse(null))
                 .build();
     }
 
-    public ProductCategory categoryDtoToProductCategory(CategoryDTO dto) {
+    public ProductCategory categoryDtoToProductCategory(CategoryModel dto) {
         return ProductCategory.builder()
                 .uuid(dto.getUuid())
                 .name(dto.getName())

@@ -3,7 +3,7 @@ package com.offlinebrain.hotpizza.rest.controller;
 import com.offlinebrain.hotpizza.AbstractIT;
 import com.offlinebrain.hotpizza.data.model.ProductCategory;
 import com.offlinebrain.hotpizza.data.repository.ProductCategoryRepository;
-import com.offlinebrain.hotpizza.rest.model.category.CategoryDTO;
+import com.offlinebrain.hotpizza.rest.model.category.CategoryModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,14 +73,14 @@ class ProductCategoryControllerIT extends AbstractIT {
         @DisplayName("Create single product category")
         void testProductCategoryCreation() {
 
-            ResponseEntity<EntityModel<CategoryDTO>> response = restTemplate.exchange(url, HttpMethod.POST,
-                    new HttpEntity<>(CategoryDTO.builder().name(testCategoryName).build()),
+            ResponseEntity<EntityModel<CategoryModel>> response = restTemplate.exchange(url, HttpMethod.POST,
+                    new HttpEntity<>(CategoryModel.builder().name(testCategoryName).build()),
                     new ParameterizedTypeReference<>() {
                     });
 
 
-            CategoryDTO categoryDTO = assertProductCategoryCreation(response, testCategoryName);
-            logger.info(categoryDTO::toString);
+            CategoryModel categoryModel = assertProductCategoryCreation(response, testCategoryName);
+            logger.info(categoryModel::toString);
         }
 
         @Test
@@ -91,23 +91,23 @@ class ProductCategoryControllerIT extends AbstractIT {
 
             assertNotNull(parentCategory, "Parent category must be created");
 
-            ResponseEntity<EntityModel<CategoryDTO>> subCategoryResponse = restTemplate.exchange(url,
+            ResponseEntity<EntityModel<CategoryModel>> subCategoryResponse = restTemplate.exchange(url,
                     HttpMethod.POST,
                     new HttpEntity<>(
-                            CategoryDTO.builder().name(testSubcategoryName).parent(parentCategory.getUuid()).build()),
+                            CategoryModel.builder().name(testSubcategoryName).parent(parentCategory.getUuid()).build()),
                     new ParameterizedTypeReference<>() {
                     });
 
-            CategoryDTO subCategoryDTO = assertProductCategoryCreation(subCategoryResponse, testSubcategoryName);
-            assertEquals(parentCategory.getUuid(), subCategoryDTO.getParent());
-            logger.info(subCategoryDTO::toString);
+            CategoryModel subCategoryModel = assertProductCategoryCreation(subCategoryResponse, testSubcategoryName);
+            assertEquals(parentCategory.getUuid(), subCategoryModel.getParent());
+            logger.info(subCategoryModel::toString);
         }
 
-        private CategoryDTO assertProductCategoryCreation(ResponseEntity<EntityModel<CategoryDTO>> response,
-                                                          String name) {
+        private CategoryModel assertProductCategoryCreation(ResponseEntity<EntityModel<CategoryModel>> response,
+                                                            String name) {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             assertNotNull(response.getBody());
-            CategoryDTO category = response.getBody().getContent();
+            CategoryModel category = response.getBody().getContent();
             assertNotNull(category);
             assertEquals(name, category.getName());
             assertNotNull(category.getUuid());
@@ -157,19 +157,19 @@ class ProductCategoryControllerIT extends AbstractIT {
         @Test
         @DisplayName("Get all categories")
         void testGetAllCategories() {
-            ResponseEntity<CollectionModel<EntityModel<CategoryDTO>>> response = restTemplate.exchange(url,
+            ResponseEntity<CollectionModel<EntityModel<CategoryModel>>> response = restTemplate.exchange(url,
                     HttpMethod.GET,
                     HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
                     });
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            Collection<EntityModel<CategoryDTO>> collection = response.getBody().getContent();
+            Collection<EntityModel<CategoryModel>> collection = response.getBody().getContent();
             assertFalse(collection.isEmpty());
-            List<CategoryDTO> categories = collection.stream().map(EntityModel::getContent).toList();
+            List<CategoryModel> categories = collection.stream().map(EntityModel::getContent).toList();
             assertEquals(dbCategories.size(), categories.size());
             logger.info(() -> categories.stream()
-                    .map(CategoryDTO::toString)
+                    .map(CategoryModel::toString)
                     .collect(Collectors.joining(System.lineSeparator(), "Retrieved categories" + System.lineSeparator(),
                             "")));
         }
@@ -181,7 +181,7 @@ class ProductCategoryControllerIT extends AbstractIT {
                     .orElseThrow(() -> new AssertionFailedError("Parent category not found"));
 
             String path = url + "/" + testParentCategoryName + "/subcategories";
-            ResponseEntity<CollectionModel<EntityModel<CategoryDTO>>> response = restTemplate.exchange(
+            ResponseEntity<CollectionModel<CategoryModel>> response = restTemplate.exchange(
                     path,
                     HttpMethod.GET,
                     HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
@@ -189,14 +189,13 @@ class ProductCategoryControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            Collection<EntityModel<CategoryDTO>> collection = response.getBody().getContent();
-            assertFalse(collection.isEmpty());
-            List<CategoryDTO> categories = collection.stream().map(EntityModel::getContent).toList();
+            Collection<CategoryModel> categories = response.getBody().getContent();
+            assertFalse(categories.isEmpty());
             assertEquals(testSubcategoryNames.size(), categories.size());
             assertTrue(categories.stream()
-                    .allMatch(categoryDTO -> categoryDTO.getParent().equals(parentCategory.getUuid())));
+                    .allMatch(categoryModel -> categoryModel.getParent().equals(parentCategory.getUuid())));
             logger.info(() -> categories.stream()
-                    .map(CategoryDTO::toString)
+                    .map(CategoryModel::toString)
                     .collect(Collectors.joining(System.lineSeparator(), "Retrieved categories" + System.lineSeparator(),
                             "")));
         }
@@ -205,7 +204,7 @@ class ProductCategoryControllerIT extends AbstractIT {
         @DisplayName("Get category by name")
         void testGetCategoryByName() {
             String path = url + "/" + testParentCategoryName;
-            ResponseEntity<EntityModel<CategoryDTO>> response = restTemplate.exchange(
+            ResponseEntity<EntityModel<CategoryModel>> response = restTemplate.exchange(
                     path,
                     HttpMethod.GET,
                     HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
@@ -213,7 +212,7 @@ class ProductCategoryControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            CategoryDTO category = response.getBody().getContent();
+            CategoryModel category = response.getBody().getContent();
             assertNotNull(category);
             assertEquals(testParentCategoryName, category.getName());
             assertNotNull(category.getUuid());

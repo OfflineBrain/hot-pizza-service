@@ -2,7 +2,7 @@ package com.offlinebrain.hotpizza.rest.mapper.entity;
 
 import com.offlinebrain.hotpizza.data.model.Address;
 import com.offlinebrain.hotpizza.data.model.ClientUser;
-import com.offlinebrain.hotpizza.rest.model.address.AddressDTO;
+import com.offlinebrain.hotpizza.rest.model.address.AddressModel;
 import com.offlinebrain.hotpizza.rest.model.address.CreateAddressDTO;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +16,8 @@ public class AddressMapper {
                 .build();
     }
 
-    public AddressDTO addressToAddressDto(Address address) {
-        return AddressDTO.builder()
+    public AddressModel addressToAddressDto(Address address) {
+        return AddressModel.builder()
                 .address(address.getAddress())
                 .clientUser(address.getClientUser().getUuid())
                 .uuid(address.getUuid())

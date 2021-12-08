@@ -5,7 +5,7 @@ import com.offlinebrain.hotpizza.data.model.Address;
 import com.offlinebrain.hotpizza.data.model.ClientUser;
 import com.offlinebrain.hotpizza.data.repository.AddressRepository;
 import com.offlinebrain.hotpizza.data.repository.ClientRepository;
-import com.offlinebrain.hotpizza.rest.model.address.AddressDTO;
+import com.offlinebrain.hotpizza.rest.model.address.AddressModel;
 import com.offlinebrain.hotpizza.rest.model.address.CreateAddressDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -76,7 +76,7 @@ public class AddressControllerIT extends AbstractIT {
         @Test
         @DisplayName("Create address")
         void testCreateAddress() {
-            ResponseEntity<EntityModel<AddressDTO>> response = restTemplate.exchange(path, HttpMethod.POST,
+            ResponseEntity<EntityModel<AddressModel>> response = restTemplate.exchange(path, HttpMethod.POST,
                     new HttpEntity<>(CreateAddressDTO.builder()
                             .address(addressValue)
                             .clientUser(clientUser.getUuid())
@@ -86,7 +86,7 @@ public class AddressControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             assertNotNull(response.getBody());
-            AddressDTO address = response.getBody().getContent();
+            AddressModel address = response.getBody().getContent();
             assertNotNull(address);
             assertEquals(addressValue, address.getAddress());
             assertNotNull(address.getUuid());
@@ -129,18 +129,18 @@ public class AddressControllerIT extends AbstractIT {
 
             String path = "/addresses/" + address.getUuid().toString();
 
-            ResponseEntity<EntityModel<AddressDTO>> response = restTemplate.exchange(path, HttpMethod.GET,
+            ResponseEntity<EntityModel<AddressModel>> response = restTemplate.exchange(path, HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
                     });
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            AddressDTO addressDTO = response.getBody().getContent();
-            assertNotNull(addressDTO);
-            assertEquals(addressValue, addressDTO.getAddress());
-            assertNotNull(addressDTO.getUuid());
-            assertEquals(firstClientUser.getUuid(), addressDTO.getClientUser());
+            AddressModel addressModel = response.getBody().getContent();
+            assertNotNull(addressModel);
+            assertEquals(addressValue, addressModel.getAddress());
+            assertNotNull(addressModel.getUuid());
+            assertEquals(firstClientUser.getUuid(), addressModel.getClientUser());
         }
 
 
@@ -155,7 +155,7 @@ public class AddressControllerIT extends AbstractIT {
 
             String path = "/clients/" + secondClientUser.getUuid().toString() + "/addresses";
 
-            ResponseEntity<CollectionModel<EntityModel<AddressDTO>>> response = restTemplate.exchange(path,
+            ResponseEntity<CollectionModel<EntityModel<AddressModel>>> response = restTemplate.exchange(path,
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<>() {
@@ -163,9 +163,9 @@ public class AddressControllerIT extends AbstractIT {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            Collection<EntityModel<AddressDTO>> collection = response.getBody().getContent();
+            Collection<EntityModel<AddressModel>> collection = response.getBody().getContent();
             assertFalse(collection.isEmpty());
-            List<AddressDTO> categories = collection.stream().map(EntityModel::getContent).toList();
+            List<AddressModel> categories = collection.stream().map(EntityModel::getContent).toList();
             assertEquals(addresses.size(), categories.size());
             assertTrue(categories.stream()
                     .allMatch(categoryDTO -> categoryDTO.getClientUser().equals(secondClientUser.getUuid())));
